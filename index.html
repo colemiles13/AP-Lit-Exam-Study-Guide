@@ -1,1 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AP Lit Exam Study Guide</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for the app */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #eef2ff; /* Light Indigo 50 */
+        }
+        .main-container {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+            color: #4b5563; /* Gray 600 */
+        }
+        .tab-button.active {
+            color: #D97706; /* Amber 700 - Accent Color for Nav */
+            border-bottom: 3px solid #D97706; 
+        }
+        .card-flip {
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            position: relative;
+            cursor: pointer;
+            height: 100%;
+        }
+        .card-flip.flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); 
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        .accordion-header {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .accordion-icon {
+            transition: transform 0.3s;
+        }
+        .accordion-content.hidden {
+            max-height: 0;
+            overflow: hidden;
+            padding: 0 1.5rem;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+        }
+        .accordion-content.visible {
+            max-height: 700px;
+            padding: 1rem 1.5rem;
+            transition: max-height 0.5s ease-in, padding 0.5s ease-in;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-10">
 
+    <div class="max-w-4xl mx-auto bg-white rounded-xl main-container p-6 md:p-10">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 pb-2">AP Literature Exam Prep Center</h1>
+
+        <!-- Tab Navigation -->
+        <div class="flex border-b border-gray-200 mb-6">
+            <button class="tab-button active" data-tab="quiz">Literary Period Quiz</button>
+            <button class="tab-button" data-tab="vocab-quiz">Vocabulary Quiz</button>
+            <button class="tab-button" data-tab="flashcards">Vocabulary Flashcards</button>
+            <button class="tab-button" data-tab="frq">Hill House FRQ Review</button>
+        </div>
+
+        <!-- TAB 1: Literary Period Quiz (Blue/Amber Theme) -->
+        <div id="quiz" class="tab-content">
+            <h2 class="text-2xl font-semibold mb-4 text-blue-800">Literary Period Notes & Quiz</h2>
+            
+            <div class="mb-8 border border-gray-200 rounded-xl overflow-hidden shadow-md">
+                <div class="accordion-header flex justify-between items-center bg-blue-50 hover:bg-blue-100 p-4" data-index="notes">
+                    <h3 class="font-bold text-xl text-blue-800">Review: Characteristics of 7 Literary Periods</h3>
+                    <svg class="accordion-icon w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+                <div class="accordion-content hidden bg-white text-gray-700" id="lit-period-notes">
+                    <!-- Notes will be inserted here by JS -->
+                </div>
+            </div>
+
+            <p class="text-xl font-semibold mb-4 text-blue-800 border-t pt-4">Test Your Knowledge (7 Questions)</p>
+            <div id="quiz-container" class="space-y-4">
+                <!-- Quiz questions will be inserted here by JavaScript -->
+            </div>
+            <div id="quiz-results" class="mt-6 p-4 rounded-lg text-lg hidden"></div>
+        </div>
+
+        <!-- TAB 2: Vocabulary Quiz (Purple/Pink Theme) -->
+        <div id="vocab-quiz" class="tab-content hidden p-6 -mx-6 -my-6 bg-purple-50 rounded-b-xl border-t border-purple-200">
+            <h2 class="text-2xl font-semibold mb-4 text-purple-800">Vocabulary Quiz: Fiction, Sound & Figurative Language</h2>
+            <div id="vocab-quiz-container" class="space-y-4">
+                <!-- Vocab quiz questions will be inserted here by JavaScript -->
+            </div>
+            <div id="vocab-quiz-results" class="mt-6 p-4 rounded-lg text-lg hidden"></div>
+        </div>
+
+        <!-- TAB 3: Flashcards (Teal/Lime Theme) -->
+        <div id="flashcards" class="tab-content hidden p-6 -mx-6 -my-6 bg-teal-50 rounded-b-xl border-t border-teal-200">
+            <h2 class="text-2xl font-semibold mb-6 text-teal-800">Vocabulary Flashcards: Click to Flip!</h2>
+            <div class="flex justify-center items-center h-80">
+                <div id="flashcard-box" class="w-full max-w-lg h-full">
+                    <!-- Flashcard will be inserted here -->
+                </div>
+            </div>
+            <div class="flex justify-center space-x-4 mt-8">
+                <!-- Lime Accent Buttons -->
+                <button id="prev-card" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-full shadow-md transition duration-150 ease-in-out">&larr; Previous</button>
+                <button id="next-card" class="bg-lime-500 hover:bg-lime-600 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-150 ease-in-out">Next &rarr;</button>
+            </div>
+            <p id="card-count" class="text-center text-sm text-teal-600 mt-4"></p>
+        </div>
+
+        <!-- TAB 4: FRQ Review (Burgundy/Yellow Theme) -->
+        <div id="frq" class="tab-content hidden p-6 -mx-6 -my-6 bg-red-50 rounded-b-xl border-t border-red-200">
+            <h2 class="text-2xl font-semibold mb-4 text-red-800">FRQ Review: The Haunting of Hill House</h2>
+            <p class="mb-6 text-red-600">Detailed notes on characters, conflict, setting, and symbolism for your open essay question.</p>
+            <div id="frq-review-container" class="space-y-3">
+                <!-- FRQ sections will be generated here -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 1. DATA STRUCTURES FROM NOTES ---
+
+        const litPeriods = [
+            {
+                period: "Romanticism",
+                char: "Rebelled against rationality; preferred imaginary, fantastic, wordy, and excessively detailed stories/poems.",
+                notes: "Mid-1700s to the late 1800s. Reaction against the Enlightenment."
+            },
+            {
+                period: "Gothic Romanticism",
+                char: "Strange places/times, the uncanny (familiar/strange), sexual power, the sublime (terrifying/awesome), supernatural/paranormal (ghosts, etc.).",
+                notes: "A genre of the larger Romanticism movement."
+            },
+            {
+                period: "Realism",
+                char: "Truthful, detailed, and unembellished depiction of everyday life. Avoids spirituality and romanticizing life. Focus on the grit of life.",
+                notes: "Early Modernism (before WWI). Reaction against the imaginary aspects of Romanticism."
+            },
+            {
+                period: "Victorian Era",
+                char: "Concentration on social issues, morality, class structure, and industrialization. Often features long, moralistic, and complex narratives.",
+                notes: "1837–1901. During the reign of Queen Victoria."
+            },
+            {
+                period: "Modernism",
+                char: "Break from tradition, focus on experimentation, and deep engagement with complexities of modern life. Sparse style ('iceberg theory'), disillusionment.",
+                notes: "Late 19th century to mid-20th century (Post WWI). Led to the 'lost generation'."
+            },
+            {
+                period: "Harlem Renaissance",
+                char: "A focus on African American identity, culture, and experience, particularly in urban settings, marked by an explosion of art and literature.",
+                notes: "1910s–1930s. Centered in Harlem, New York."
+            },
+            {
+                period: "Post-Modernism",
+                char: "Rejection of objective truth, favoring irony, paradox, and fragmented narratives. Includes metafiction (writing about writing).",
+                notes: "Mid-20th Century - Present. Reaction against Modernist certainty."
+            },
+        ];
+
+        // Comprehensive Vocabulary Data 
+        const comprehensiveVocab = [
+            // Fiction Terms
+            { term: "Protagonist", definition: "The main character in a story, often the hero or the one the reader identifies with." },
+            { term: "Antagonist", definition: "The character or force that actively opposes the protagonist." },
+            { term: "Deuteragonist", definition: "The second most important character, ranking just below the protagonist (often a sidekick or foil)." },
+            { term: "Foil", definition: "A character whose contrasting personality highlights particular qualities of another character (usually the protagonist)." },
+            { term: "Tertiary Character", definition: "A minor, supporting role who serves a specific, limited function, often appearing in just one or two scenes to advance the plot or provide context." },
+            { term: "Static Character", definition: "A character who remains unchanged in personality, beliefs, and outlook throughout a story." },
+            { term: "Dynamic Character", definition: "A character who undergoes significant internal growth or transformation (a character arc) due to plot events." },
+            { term: "Flat Character", definition: "A one-dimensional character, defined by a single trait or stereotype." },
+            { term: "Round Character", definition: "A multi-dimensional, complex character with depth like a real person." },
+            { term: "Internal Conflict", definition: "A struggle occurring within a character's mind or heart (person vs. self)." },
+            { term: "External Conflict", definition: "A struggle between a character and an outside force (person vs. person, nature, society, or fate)." },
+            { term: "Exposition", definition: "The beginning of the story that introduces the setting, characters, and basic conflict." },
+            { term: "Inciting Incident", definition: "The event that introduces the central conflict and sets the rest of the plot in motion." },
+            { term: "Climax", definition: "The point of highest tension or drama, often representing the turning point in the story." },
+            { term: "Resolution/Denouement", definition: "The final outcome of the story where conflicts are resolved and loose ends are tied up." },
+
+            // Sound Devices
+            { term: "Dissonance", definition: "The use of harsh, unpleasant, or disruptive sounds (opposite of Euphony/melodic sounds)." },
+            { term: "Euphony", definition: "The use of pleasant or melodic sounds that contribute to the flow of speech or text." },
+            { term: "Assonance", definition: "Repetition of vowel sounds in nonrhyming stressed syllables near each other." },
+            { term: "Consonance", definition: "The recurrence of similar sounds, especially consonants, in close proximity." },
+            { term: "Alliteration", definition: "The repetition of usually initial consonant sounds in two or more neighboring words." },
+            { term: "Perfect Rhyme", definition: "Rhyme in which different consonants are followed by identical vowel and consonant sounds." },
+            { term: "Near Rhyme", definition: "Rhyming in which the words sound the same but do not rhyme perfectly (also called Slant Rhyme)." },
+            { term: "Sight/Eye Rhyme", definition: "Words that appear to rhyme due to visual similarity, but ultimately don't sound the same when pronounced." },
+            { term: "Meter", definition: "A combination of the number of beats and the arrangement of stressed and non-stressed syllables in each line." },
+
+            // Figurative Language
+            { term: "Simile", definition: "A comparison between two unlike things using 'like' or 'as'." },
+            { term: "Metaphor", definition: "A direct comparison between two unlike things without using 'like' or 'as'." },
+            { term: "Allusion", definition: "An expression designed to call something to mind without mentioning it explicitly; an indirect or passing reference." },
+            { term: "Personification", definition: "Giving human qualities or actions to inanimate objects or abstract ideas." },
+            { term: "Hyperbole", definition: "Exaggerated statements or claims not meant to be taken literally." },
+            { term: "Understatement", definition: "The presentation of something as being smaller, worse, or less important than it actually is." },
+            { term: "Synecdoche", definition: "A figure of speech where a part is made to represent the whole or vice versa (e.g., 'all hands on deck')." },
+            { term: "Metonymy", definition: "Substitution of the name of an attribute or adjunct for that of the thing meant (e.g., 'suit' for business executive)." },
+            { term: "Paradox", definition: "A seemingly absurd or self-contradictory statement that may prove to be well founded or true upon investigation." },
+            { term: "Symbol", definition: "An object or idea that represents something else, typically something abstract." },
+        ];
+        
+        // Redefine vocabFlashcards using the comprehensive list for consistency
+        const vocabFlashcards = comprehensiveVocab; 
+
+
+        const hillHouseReview = [
+            {
+                title: "Antagonism",
+                content: "The antagonist isn't a single person but a combination of **Hill House itself**, Eleanor's **own psyche**, and her **domineering mother**. The house acts as a malevolent entity that preys on Eleanor's vulnerabilities.",
+            },
+            {
+                title: "Foil Characters",
+                content: "Both **Theodora and Luke Sanderson** function as significant foils to Eleanor Vance. Their contrasting personalities and behaviors help the reader understand Eleanor's internal struggles, isolation, and mental decline.",
+            },
+            {
+                title: "Tertiary Character Function",
+                content: "Tertiary characters (Mr. & Mrs. Dudley, the Montagues) are crucial plot devices: they reveal Hill House's history, foreshadow doom, test the main characters' sanity, and serve as surrogate family/antagonists that highlight the Crains' isolation and trauma.",
+            },
+            {
+                title: "Internal Conflict",
+                content: "Eleanor's internal conflict is her deep **desire for a home and belonging** versus her profound **fear of the outside world, independence, and personal inadequacy** (paranoia about embarrassing herself).",
+            },
+            {
+                title: "Eleanor's Change (Crisis/Climax)",
+                content: "She changes from a repressed, isolated woman desperate for identity into a person **completely consumed and integrated with the supernatural entity of Hill House**. Her final choice illustrates this transformation.",
+            },
+            {
+                title: "Setting and Mood",
+                content: "Hill House warps reality with its 'not sane' architecture, oppressive silence, and unsettling presence. This isolates the characters, amplifies their insecurities, and forces them into conflict, developing a mood of psychological horror.",
+            },
+            {
+                title: "Key Symbols (Doors, Red, The House)",
+                content: "<ul><li>**Doors:** Swing shut constantly, symbolizing missed opportunities or denial of escape from internal struggles.</li><li>**Red:** Appears frequently (letters, sweater, nail polish). Represents violence, passion, danger, and raw energy. Develops meaning as Eleanor is consumed.</li><li>**Hill House:** The central, overarching symbol. It is 'not sane,' with 'evil' in its 'face,' symbolizing the **mysteries and potential 'insanity' of the human mind** and the terror of the unknowable self.</li></ul>",
+            }
+        ];
+
+        // --- 2. GLOBAL STATE AND HELPERS ---
+        let currentCardIndex = 0;
+        let quizScore = 0;
+        let answeredQuestions = 0;
+        let quizData = []; 
+        
+        let vocabQuizScore = 0; 
+        let answeredVocabQuestions = 0; 
+        let vocabQuizData = []; 
+
+        // Helper to shuffle an array (Fisher-Yates)
+        const shuffle = (array) => {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        };
+
+        // --- 3. TAB MANAGEMENT ---
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const targetTab = e.target.dataset.tab;
+                
+                // Hide all content and deactivate all buttons
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+
+                // Show the target content and activate the clicked button
+                document.getElementById(targetTab).classList.remove('hidden');
+                e.target.classList.add('active');
+
+                // Special initialization for tabs
+                if (targetTab === 'quiz') {
+                    if (quizData.length === 0 || answeredQuestions === litPeriods.length) {
+                         generateQuiz();
+                    }
+                    renderLitPeriodNotes();
+                } else if (targetTab === 'vocab-quiz') { 
+                    if (vocabQuizData.length === 0 || answeredVocabQuestions === vocabQuizData.length) {
+                        generateVocabQuiz(); 
+                    }
+                } else if (targetTab === 'flashcards') {
+                    renderFlashcard();
+                } else if (targetTab === 'frq' && !document.getElementById('frq-review-container').innerHTML) {
+                    renderFRQReview();
+                }
+            });
+        });
+
+        // --- 4. LITERARY PERIOD NOTES RENDERING (BLUE/AMBER ACCORDION) ---
+        const renderLitPeriodNotes = () => {
+            const notesContainer = document.getElementById('lit-period-notes');
+            if (notesContainer.innerHTML) return; 
+
+            notesContainer.innerHTML = `
+                <ul class="list-disc ml-6 p-4 space-y-3">
+                    ${litPeriods.map(p => `
+                        <li>
+                            <strong class="text-blue-700">${p.period} (${p.notes.split('.')[0] + '.'})</strong>: 
+                            <span class="italic">${p.char}</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+
+            const notesHeader = document.querySelector('.accordion-header[data-index="notes"]');
+            const notesContent = document.getElementById('lit-period-notes');
+            const notesIcon = notesHeader.querySelector('.accordion-icon');
+
+            notesHeader.addEventListener('click', () => {
+                if (notesContent.classList.contains('visible')) {
+                    notesContent.classList.remove('visible');
+                    notesContent.classList.add('hidden');
+                    notesIcon.style.transform = 'rotate(0deg)';
+                } else {
+                    notesContent.classList.remove('hidden');
+                    notesContent.classList.add('visible');
+                    notesIcon.style.transform = 'rotate(180deg)';
+                }
+            });
+        }
+
+
+        // --- 5. LITERARY PERIOD QUIZ LOGIC (BLUE/AMBER THEME) ---
+
+        const generateQuiz = () => {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+            document.getElementById('quiz-results').classList.add('hidden');
+            quizScore = 0;
+            answeredQuestions = 0;
+
+            quizData = litPeriods.map((correctItem, index) => {
+                const correctPeriod = correctItem.period;
+                const questionText = correctItem.char;
+                
+                let incorrectPeriods = shuffle(litPeriods
+                    .filter(item => item.period !== correctPeriod)
+                    .map(item => item.period))
+                    .slice(0, 3);
+                
+                const options = shuffle([...incorrectPeriods, correctPeriod]);
+
+                return { id: index, text: questionText, correctAnswer: correctPeriod, options: options };
+            });
+
+            quizData.forEach(q => {
+                const qEl = document.createElement('div');
+                qEl.className = "p-4 border border-gray-300 rounded-lg bg-white shadow-lg transition-shadow duration-300 hover:shadow-xl";
+                qEl.innerHTML = `
+                    <p class="font-semibold mb-3 text-gray-700">Which literary period is defined by: "<span class="italic font-normal text-blue-700">${q.text}</span>"?</p>
+                    <div id="q-${q.id}-options" class="space-y-2">
+                        ${q.options.map(option => `
+                            <button class="w-full text-left p-3 rounded-md bg-gray-50 border border-gray-200 hover:bg-amber-100 transition duration-150 ease-in-out text-gray-800 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                                data-question-id="${q.id}" data-answer="${option}">
+                                ${option}
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(qEl);
+            });
+
+            container.querySelectorAll('button').forEach(button => {
+                button.addEventListener('click', handleQuizAnswer);
+            });
+        };
+
+        const handleQuizAnswer = (e) => {
+            const button = e.target;
+            const qId = parseInt(button.dataset.questionId);
+            const selectedAnswer = button.dataset.answer;
+            const question = quizData.find(q => q.id === qId);
+            const optionsContainer = document.getElementById(`q-${qId}-options`);
+
+            if (optionsContainer.classList.contains('answered')) { return; }
+            optionsContainer.classList.add('answered');
+            answeredQuestions++;
+
+            optionsContainer.querySelectorAll('button').forEach(btn => btn.disabled = true);
+
+            if (selectedAnswer === question.correctAnswer) {
+                quizScore++;
+                button.classList.remove('bg-gray-50', 'hover:bg-amber-100', 'border-gray-200');
+                button.classList.add('bg-green-600', 'text-white', 'shadow-lg');
+            } else {
+                button.classList.remove('bg-gray-50', 'hover:bg-amber-100', 'border-gray-200');
+                button.classList.add('bg-red-600', 'text-white', 'shadow-lg');
+                
+                optionsContainer.querySelector(`[data-answer="${question.correctAnswer}"]`).classList.add('bg-green-200', 'text-green-800', 'font-semibold', 'border-green-400');
+            }
+
+            if (answeredQuestions === quizData.length) {
+                showQuizResults();
+            }
+        };
+
+        const showQuizResults = () => {
+            const resultsEl = document.getElementById('quiz-results');
+            const total = quizData.length;
+            const percentage = Math.round((quizScore / total) * 100);
+
+            resultsEl.className = 'mt-6 p-6 rounded-lg text-lg text-center shadow-inner';
+            resultsEl.classList.remove('hidden');
+
+            let feedback = '';
+            if (percentage >= 80) {
+                resultsEl.classList.add('bg-green-100', 'text-green-800', 'border-4', 'border-green-300');
+                feedback = 'Excellent job! You are ready for the exam.';
+            } else if (percentage >= 50) {
+                resultsEl.classList.add('bg-yellow-100', 'text-yellow-800', 'border-4', 'border-yellow-300');
+                feedback = 'Good start. Review the highlighted sections, especially the movements you missed.';
+            } else {
+                resultsEl.classList.add('bg-red-100', 'text-red-800', 'border-4', 'border-red-300');
+                feedback = 'Time for a focused review! Focus on distinguishing the characteristics of each period.';
+            }
+
+            resultsEl.innerHTML = `
+                <p class="text-3xl font-bold">${quizScore} / ${total}</p>
+                <p class="text-xl font-semibold mt-2">${percentage}% Correct</p>
+                <p class="mt-4">${feedback}</p>
+                <button onclick="generateQuiz()" class="mt-4 bg-blue-800 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow-lg transition duration-150 ease-in-out">
+                    Start Quiz Again
+                </button>
+            `;
+        };
+        
+        // --- 6. VOCABULARY QUIZ LOGIC (PURPLE/PINK THEME) ---
+
+        const generateVocabQuiz = () => {
+            const container = document.getElementById('vocab-quiz-container');
+            container.innerHTML = '';
+            document.getElementById('vocab-quiz-results').classList.add('hidden');
+            vocabQuizScore = 0;
+            answeredVocabQuestions = 0;
+            
+            const quizTerms = shuffle([...comprehensiveVocab]).slice(0, 10); 
+            
+            vocabQuizData = quizTerms.map((correctItem, index) => {
+                const correctTerm = correctItem.term;
+                const questionDefinition = correctItem.definition;
+                
+                let incorrectTerms = shuffle(comprehensiveVocab
+                    .filter(item => item.term !== correctTerm)
+                    .map(item => item.term))
+                    .slice(0, 3);
+                
+                const options = shuffle([...incorrectTerms, correctTerm]);
+
+                return { id: `v${index}`, text: questionDefinition, correctAnswer: correctTerm, options: options };
+            });
+
+            vocabQuizData.forEach(q => {
+                const qEl = document.createElement('div');
+                // Quiz cards match the purple theme
+                qEl.className = "p-4 border border-purple-300 rounded-lg bg-white shadow-lg transition-shadow duration-300 hover:shadow-xl";
+                qEl.innerHTML = `
+                    <p class="font-semibold mb-3 text-gray-700">Which term is defined by: "<span class="italic font-normal text-purple-700">${q.text}</span>"?</p>
+                    <div id="q-${q.id}-options" class="space-y-2">
+                        ${q.options.map(option => `
+                            <!-- Pink Accent for hover/focus -->
+                            <button class="w-full text-left p-3 rounded-md bg-gray-50 border border-gray-200 hover:bg-pink-100 transition duration-150 ease-in-out text-gray-800 text-sm focus:ring-2 focus:ring-pink-500 focus:outline-none"
+                                data-question-id="${q.id}" data-answer="${option}">
+                                ${option}
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(qEl);
+            });
+
+            container.querySelectorAll('button').forEach(button => {
+                button.addEventListener('click', handleVocabQuizAnswer);
+            });
+        };
+
+        const handleVocabQuizAnswer = (e) => {
+            const button = e.target;
+            const qId = button.dataset.questionId;
+            const selectedAnswer = button.dataset.answer;
+            const question = vocabQuizData.find(q => q.id === qId);
+            const optionsContainer = document.getElementById(`q-${qId}-options`);
+
+            if (optionsContainer.classList.contains('answered')) { return; }
+            optionsContainer.classList.add('answered');
+            answeredVocabQuestions++;
+
+            optionsContainer.querySelectorAll('button').forEach(btn => btn.disabled = true);
+
+            if (selectedAnswer === question.correctAnswer) {
+                vocabQuizScore++;
+                button.classList.remove('bg-gray-50', 'hover:bg-pink-100', 'border-gray-200');
+                button.classList.add('bg-green-600', 'text-white', 'shadow-lg');
+            } else {
+                button.classList.remove('bg-gray-50', 'hover:bg-pink-100', 'border-gray-200');
+                button.classList.add('bg-red-600', 'text-white', 'shadow-lg');
+                
+                optionsContainer.querySelector(`[data-answer="${question.correctAnswer}"]`).classList.add('bg-green-200', 'text-green-800', 'font-semibold', 'border-green-400');
+            }
+
+            if (answeredVocabQuestions === vocabQuizData.length) {
+                showVocabQuizResults();
+            }
+        };
+
+        const showVocabQuizResults = () => {
+            const resultsEl = document.getElementById('vocab-quiz-results');
+            const total = vocabQuizData.length;
+            const percentage = Math.round((vocabQuizScore / total) * 100);
+
+            resultsEl.className = 'mt-6 p-6 rounded-lg text-lg text-center shadow-inner';
+            resultsEl.classList.remove('hidden');
+            
+            let feedback = '';
+            if (percentage >= 80) {
+                resultsEl.classList.add('bg-green-100', 'text-green-800', 'border-4', 'border-green-300');
+                feedback = 'Fantastic! You know your literary vocabulary!';
+            } else if (percentage >= 50) {
+                resultsEl.classList.add('bg-yellow-100', 'text-yellow-800', 'border-4', 'border-yellow-300');
+                feedback = 'You got most of them. Review the flashcards to solidify the tougher terms!';
+            } else {
+                resultsEl.classList.add('bg-red-100', 'text-red-800', 'border-4', 'border-red-300');
+                feedback = 'Let\'s head back to the flashcards. Focus on the definitions before trying again.';
+            }
+            
+            // Purple restart button for theme consistency
+            resultsEl.innerHTML = `
+                <p class="text-3xl font-bold">${vocabQuizScore} / ${total}</p>
+                <p class="text-xl font-semibold mt-2">${percentage}% Correct</p>
+                <p class="mt-4">${feedback}</p>
+                <button onclick="generateVocabQuiz()" class="mt-4 bg-purple-800 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-full shadow-lg transition duration-150 ease-in-out">
+                    Start Vocabulary Quiz Again
+                </button>
+            `;
+        };
+
+
+        // --- 7. VOCABULARY FLASHCARDS LOGIC (TEAL/LIME THEME) ---
+
+        const renderFlashcard = () => {
+            const cardData = vocabFlashcards[currentCardIndex];
+            const cardBox = document.getElementById('flashcard-box');
+            cardBox.innerHTML = '';
+            
+            const cardEl = document.createElement('div');
+            cardEl.className = 'card-flip';
+            cardEl.innerHTML = `
+                <!-- Teal Front -->
+                <div class="card-face bg-teal-100 border-4 border-teal-600 text-teal-900">
+                    <p class="text-3xl font-bold text-center">${cardData.term}</p>
+                </div>
+                <!-- Lime Back -->
+                <div class="card-face card-back bg-lime-100 border-4 border-lime-600 text-lime-900 text-lg">
+                    <p class="text-center">${cardData.definition}</p>
+                </div>
+            `;
+            cardBox.appendChild(cardEl);
+            
+            cardEl.addEventListener('click', () => {
+                cardEl.classList.toggle('flipped');
+            });
+
+            document.getElementById('card-count').textContent = `Card ${currentCardIndex + 1} of ${vocabFlashcards.length}`;
+        };
+
+        document.getElementById('next-card').addEventListener('click', () => {
+            currentCardIndex = (currentCardIndex + 1) % vocabFlashcards.length;
+            renderFlashcard();
+        });
+
+        document.getElementById('prev-card').addEventListener('click', () => {
+            currentCardIndex = (currentCardIndex - 1 + vocabFlashcards.length) % vocabFlashcards.length;
+            renderFlashcard();
+        });
+
+
+        // --- 8. FRQ REVIEW LOGIC (BURGUNDY/YELLOW ACCORDION) ---
+
+        const renderFRQReview = () => {
+            const container = document.getElementById('frq-review-container');
+            container.innerHTML = hillHouseReview.map((item, index) => `
+                <div class="border border-red-300 rounded-xl overflow-hidden shadow-lg transition-all duration-300 hover:shadow-xl">
+                    <!-- Burgundy Header -->
+                    <div class="accordion-header flex justify-between items-center bg-red-100 hover:bg-red-200 p-4" data-index="${index}">
+                        <h3 class="font-bold text-lg text-red-800">${item.title}</h3>
+                        <!-- Yellow Icon -->
+                        <svg class="accordion-icon w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <!-- White Content -->
+                    <div class="accordion-content hidden bg-white text-gray-700" data-index="${index}">
+                        <div class="p-4">${item.content}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Attach event listeners for accordion functionality
+            container.querySelectorAll('.accordion-header').forEach(header => {
+                header.addEventListener('click', (e) => {
+                    const index = header.dataset.index;
+                    const content = container.querySelector(`.accordion-content[data-index="${index}"]`);
+                    const icon = header.querySelector('.accordion-icon');
+                    
+                    if (content.classList.contains('visible')) {
+                        content.classList.remove('visible');
+                        content.classList.add('hidden');
+                        icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        // Close all others and open this one
+                        container.querySelectorAll('.accordion-content.visible').forEach(c => c.classList.replace('visible', 'hidden'));
+                        container.querySelectorAll('.accordion-icon').forEach(i => i.style.transform = 'rotate(0deg)');
+                        
+                        content.classList.remove('hidden');
+                        content.classList.add('visible');
+                        icon.style.transform = 'rotate(180deg)';
+                    }
+                });
+            });
+        };
+
+
+        // --- 9. INITIALIZATION ---
+
+        window.onload = () => {
+            // Start on the Quiz tab
+            generateQuiz();
+            generateVocabQuiz(); // Pre-render vocab quiz but keep hidden
+            renderFRQReview(); // Pre-render but keep hidden
+            renderLitPeriodNotes(); // Ensure notes are loaded
+        };
+
+    </script>
+</body>
+  </html>
